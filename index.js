@@ -1,43 +1,46 @@
-
-const express = require('express')
-const cors = require('cors');
-const { MongoClient, ServerApiVersion } = require('mongodb');
-const app = express()
+const express = require("express");
+const cors = require("cors");
 require("dotenv").config();
 
-const port =process.env.PORT|| 3000;
+const app = express();
+const port = process.env.PORT || 3000;
 
 // middleware
 app.use(cors());
 app.use(express.json());
 
-//mongodb connection
-const uri = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASS}@programming.bmabwzr.mongodb.net/?appName=Programming`;
-const client = new MongoClient(uri, {
-  serverApi: {
-    version: ServerApiVersion.v1,
-    strict: true,
-    deprecationErrors: true,
-  }
+// test route
+app.get("/", (req, res) => {
+  res.send("SIMPLE CRUD SERVER IS RUNNING!");
 });
 
+// fake users data
+const users = [
+  { id: 1, name: "John Doe", email: "john@example.com" },
+  { id: 2, name: "Jane Smith", email: "jane@example.com" },
+  { id: 3, name: "Bob Johnson", email: "bob@example.com" },
+];
 
-app.get('/', (req, res) => {
-  res.send('SIMPLE CURD SERVER IS RUNNING!')
-})
+// GET users
+app.get("/user", (req, res) => {
+  res.send(users);
+});
 
-async function run() {
-  try{
-    await client.connect();
-    await client.db('admin').command({ping:1})
-    console.log("ping your deployment .ping your deployment . ping your deployment . ")
-  }
-  finally{
+// POST user
+app.post("/user", (req, res) => {
+  const newUser = req.body;
+  console.log("POST API called:", newUser);
 
-  }
-}
- run().catch(console.dir)
+  newUser.id = users.length + 1;
+  users.push(newUser);
+
+  res.send({
+    message: "User added successfully",
+    user: newUser,
+  });
+});
 
 app.listen(port, () => {
-  console.log(`Example app listening on port ${port}`)
-})
+  console.log(`Server running on port ${port}`);
+});
+
